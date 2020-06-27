@@ -15,9 +15,9 @@ jobs:
       container:
           image: chainxorg/chainx-ci
           volumes:
-              - $(PWD):/chainx
+              - .:/chainx
       steps:
-          - run: cat /chainx/.github/workflows/ci.yml && cargo build --release
+          - run: echo $PWD && cat /chainx/.github/workflows/ci.yml && cargo build --release
             name: Run in container
 
   rust:
