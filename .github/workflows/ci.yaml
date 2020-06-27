@@ -12,9 +12,10 @@ env:
 jobs:
   container:
       runs-on: ubuntu-latest
-      container: chainxorg/chainx-ci
-      volumes:
-          - $(PWD):/chainx
+      container:
+          image: chainxorg/chainx-ci
+          volumes:
+              - $(PWD):/chainx
       steps:
           - run: cat /chainx/.github/workflows/ci.yml && cargo build --release
             name: Run in container
