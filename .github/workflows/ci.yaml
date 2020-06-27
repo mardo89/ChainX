@@ -14,11 +14,11 @@ jobs:
       runs-on: ubuntu-latest
       container:
           image: chainxorg/chainx-ci
-          volumes:
-              - /chainx
+          options: -v /__w/ChainX/ChainX:/chainx
       steps:
-          - run: echo $PWD && ls && cat /chainx/.github/workflows/ci.yml && cargo build --release
-            name: Run in container
+          - uses: actions/checkout@v2
+          - name: Run in container
+            run: cat /chainx/.github/workflows/ci.yml && cargo build --release
 
   rust:
     name: Rust
