@@ -15,7 +15,7 @@ jobs:
       container:
           image: chainxorg/chainx-ci
           volumes:
-              - .:/chainx
+              - /chainx
       steps:
           - run: echo $PWD && cat /chainx/.github/workflows/ci.yml && cargo build --release
             name: Run in container
