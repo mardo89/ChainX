@@ -18,7 +18,7 @@ jobs:
       steps:
           - uses: actions/checkout@v2
           - name: Run in container
-            run: cat /chainx/.github/workflows/ci.yml && cargo build --release
+            run: ls -al && cargo build --release
 
   rust:
     name: Rust
