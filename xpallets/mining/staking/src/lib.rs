@@ -5,6 +5,7 @@
 mod election;
 mod impls;
 mod reward;
+mod session_manager;
 mod slashing;
 mod types;
 
