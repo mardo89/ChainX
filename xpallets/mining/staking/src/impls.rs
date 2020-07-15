@@ -249,14 +249,14 @@ where
         Option<<T as frame_system::Trait>::AccountId>,
     >,
 {
+    /// Always returns Ok(_), i.e., always process the slashing immediately, no deferred slashing.
     fn on_offence(
         offenders: &[OffenceDetails<Reporter<T>, Offender<T>>],
         slash_fraction: &[Perbill],
         _slash_session: SessionIndex,
     ) -> Result<OnOffenceRes, ()> {
         for (details, _slash_fraction) in offenders.iter().zip(slash_fraction) {
-            // TODO: reward reporters?
-
+            // reporters are actually none at the moment.
             let (offender, _) = &details.offender;
 
             // FIXME: record the offenders by session_index?
