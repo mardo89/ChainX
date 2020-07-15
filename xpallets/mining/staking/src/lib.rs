@@ -20,6 +20,7 @@ use frame_support::{
 };
 use frame_system::{self as system, ensure_signed};
 use sp_runtime::traits::{Convert, SaturatedConversion, Saturating, Zero};
+use sp_runtime::Perbill;
 use sp_std::prelude::*;
 
 use chainx_primitives::Memo;
@@ -58,13 +59,13 @@ pub trait Trait: xpallet_assets::Trait {
     /// The overarching event type.
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
 
-    ///
+    /// Trait for getting Treasury AccountId.
     type TreasuryAccount: TreasuryAccount<Self::AccountId>;
 
-    ///
+    /// Trait for interacting with the asset mining module.
     type AssetMining: AssetMining<Self::Balance>;
 
-    ///
+    /// Determine the AccountId for the reward pot via validator AccountId.
     type DetermineRewardPotAccount: RewardPotAccountFor<Self::AccountId, Self::AccountId>;
 
     /// Interface for interacting with a session module.
@@ -170,11 +171,7 @@ decl_storage! {
         pub IsCurrentSessionFinal get(fn is_current_session_final): bool = false;
 
         /// Offenders reported in current session.
-        OffendersInSession get(fn offenders_in_session): Vec<T::AccountId>;
-
-        /// The map of offender to the count of offences of that offender reported in current session.
-        OffenceCountInSession get(fn offence_count_in_session):
-            map hasher(twox_64_concat) T::AccountId => u32;
+        OffendersInSession get(fn offenders_in_session): Vec<(T::AccountId, Perbill)>;
 
         /// Minimum penalty for each slash.
         pub MinimumPenalty get(fn minimum_penalty) config(): T::Balance;

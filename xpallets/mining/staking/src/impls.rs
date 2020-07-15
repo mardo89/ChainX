@@ -3,7 +3,7 @@ use codec::Encode;
 use sp_arithmetic::traits::BaseArithmetic;
 use sp_core::crypto::UncheckedFrom;
 use sp_runtime::{traits::Hash, Perbill};
-use sp_staking::offence::{Offence, OffenceDetails, OffenceError, OnOffenceHandler, ReportOffence};
+use sp_staking::offence::{OffenceDetails, OnOffenceHandler};
 use xp_mining_common::{
     generic_weight_factors, BaseMiningWeight, Claim, ComputeMiningWeight, WeightFactors, WeightType,
 };
@@ -249,27 +249,28 @@ where
         Option<<T as frame_system::Trait>::AccountId>,
     >,
 {
-    /// Always returns Ok(_), i.e., always process the slashing immediately, no deferred slashing.
+    /// Always returns Ok(_), i.e., notify the Offences module that the slashing will
+    /// be applied immediately, no deferred slashing.
+    ///
+    /// `on_offence()` is triggered inside `on_before_session_ending()`.
     fn on_offence(
         offenders: &[OffenceDetails<Reporter<T>, Offender<T>>],
         slash_fraction: &[Perbill],
         _slash_session: SessionIndex,
     ) -> Result<OnOffenceRes, ()> {
-        for (details, _slash_fraction) in offenders.iter().zip(slash_fraction) {
-            // reporters are actually none at the moment.
-            let (offender, _) = &details.offender;
+        let offenders_in_session = offenders
+            .into_iter()
+            .zip(slash_fraction)
+            .map(|(details, slash_fraction)| {
+                // reporters are actually none at the moment.
+                let (offender, _reporters) = &details.offender;
+                (offender.clone(), slash_fraction.clone())
+            })
+            .collect::<Vec<_>>();
 
-            // FIXME: record the offenders by session_index?
-            <OffendersInSession<T>>::mutate(|offenders| {
-                if !offenders.contains(offender) {
-                    offenders.push(offender.clone())
-                }
-            });
+        // Note the offenders in current session.
+        <OffendersInSession<T>>::put(offenders_in_session);
 
-            <OffenceCountInSession<T>>::mutate(offender, |cnt| {
-                *cnt += 1;
-            });
-        }
         Ok(0)
     }
 

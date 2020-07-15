@@ -2,17 +2,8 @@ use super::*;
 
 impl<T: Trait> Module<T> {
     fn new_session(session_index: SessionIndex) -> Option<Vec<T::AccountId>> {
-        // TODO: the whole flow of session changes?
-        //
         // Only the active validators can be rewarded.
-        let staking_reward = Self::distribute_session_reward(session_index);
-
-        let force_chilled = Self::slash_offenders_in_session(staking_reward);
-
-        if force_chilled > 0 {
-            // Force a new era if some offender's reward pot has been wholly slashed.
-            Self::ensure_new_era();
-        }
+        let _staking_reward = Self::distribute_session_reward(session_index);
 
         debug!(
             "[new_session]session_index:{:?}, current_era:{:?}",
@@ -20,7 +11,6 @@ impl<T: Trait> Module<T> {
             Self::current_era()
         );
 
-        // FIXME: force new era when some validator's reward pot has been all slashed.
         if let Some(current_era) = Self::current_era() {
             // Initial era has been set.
 
@@ -85,6 +75,12 @@ impl<T: Trait> Module<T> {
 
     /// End a session potentially ending an era.
     fn end_session(session_index: SessionIndex) {
+        let force_chilled = Self::slash_offenders_in_session();
+        if force_chilled > 0 {
+            // Force a new era if some offender's reward pot has been wholly slashed.
+            Self::ensure_new_era();
+        }
+
         if let Some(active_era) = Self::active_era() {
             if let Some(next_active_era_start_session_index) =
                 Self::eras_start_session_index(active_era.index + 1)
@@ -98,9 +94,9 @@ impl<T: Trait> Module<T> {
 
     /// * Increment `active_era.index`,
     /// * reset `active_era.start`,
-    /// * update `BondedEras` and apply slashes.
+    /// * ~~update `BondedEras` and apply slashes~~.
     fn start_era(_start_session: SessionIndex) {
-        let active_era = ActiveEra::mutate(|active_era| {
+        let _active_era = ActiveEra::mutate(|active_era| {
             let new_index = active_era.as_ref().map(|info| info.index + 1).unwrap_or(0);
             *active_era = Some(ActiveEraInfo {
                 index: new_index,
@@ -111,11 +107,8 @@ impl<T: Trait> Module<T> {
         });
     }
 
-    /// Compute payout for era.
-    fn end_era(active_era: ActiveEraInfo, session_index: SessionIndex) {
-        debug!(
-            "[end_era]active_era:{:?}, session_index:{:?}",
-            active_era, session_index
-        );
+    /// Substrate: Compute payout for era.
+    fn end_era(_active_era: ActiveEraInfo, _session_index: SessionIndex) {
+        // Ignore
     }
 }
