@@ -332,7 +332,7 @@ impl<T: Trait> Module<T> {
                     T::BitcoinTrustee::generate_trustee_session_info(props, config)?;
 
                 // sort account list to make sure generate a stable multisig addr(addr is related with accounts sequence)
-                session_info.trustee_list.sort();
+                // session_info.trustee_list.sort();
                 session_info.into()
             }
             _ => Err(Error::<T>::NotSupportedChain)?,
